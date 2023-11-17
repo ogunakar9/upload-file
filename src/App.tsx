@@ -1,58 +1,63 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import { ChangeEvent, useEffect, useState } from "react";
+import "./App.css";
+import { POST_URL } from "./features/upload/uploadAPI";
 
-function App() {
+const App = () => {
+  const MAX_FILE_SIZE = 50000;
+  const [files, setFiles] = useState<FileList | null>(null);
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    if (files[files.length - 1].size > MAX_FILE_SIZE) {
+      alert("Please upload only one file");
+      return;
+    }
+    setFiles(files);
+  };
+
+  useEffect(() => {
+    if (files && files.length) {
+      const formData = new FormData();
+      console.log(files[0]);
+
+      formData.append("file", files[0]);
+      console.log(formData);
+
+      // fetch(POST_URL, {
+      //   method: "POST",
+      //   body: formData,
+      // })
+      //   .then((res) => res.json())
+      //   .then((res) => console.log(res));
+    }
+  }, [files]);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
+      <h1
+        className="text-3xl font-bold
+        underline"
+      >
+        Hello world!
+      </h1>
+      <input type="file" onChange={handleInputChange} />
+      {files &&
+        Array.from(files).map((file: File) => {
+          return (
+            <section key={file.name}>
+              File details:
+              <ul>
+                <li>Name: {file.name}</li>
+                <li>Type: {file.type}</li>
+                <li>Size: {file.size} bytes</li>
+              </ul>
+            </section>
+          );
+        })}
     </div>
   );
-}
+};
 
 export default App;
