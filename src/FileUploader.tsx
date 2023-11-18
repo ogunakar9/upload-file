@@ -15,8 +15,6 @@ const FileUploader: React.FC = () => {
 
     let sizeError = false;
     for (const file of files) {
-      console.log("file", file.size);
-
       if (file.size > MAX_FILE_SIZE) {
         alert("File size is too big!");
         sizeError = true;
@@ -72,30 +70,26 @@ const FileUploader: React.FC = () => {
           style={{ display: "none" }}
         />
       </label>
-
       <div>
         <h4>Selected Files:</h4>
         <ul>
-          {selectedFiles.map((file, index) => (
-            <li key={index}>{file.name}</li>
-          ))}
+          {preview && preview.length ? (
+            preview.map((imgSrc, index) => {
+              return (
+                <div key={index}>
+                  <li>{selectedFiles[index].name}</li>
+                  <button onClick={() => handleRemoveImage(imgSrc, index)}>
+                    x
+                  </button>
+                  <img src={imgSrc} alt="" />
+                </div>
+              );
+            })
+          ) : (
+            <></>
+          )}
         </ul>
       </div>
-
-      {preview && preview.length ? (
-        preview.map((imgSrc, index) => {
-          return (
-            <div key={index}>
-              <button onClick={() => handleRemoveImage(imgSrc, index)}>
-                x
-              </button>
-              <img key={index} src={imgSrc} alt="" />
-            </div>
-          );
-        })
-      ) : (
-        <></>
-      )}
     </div>
   );
 };
