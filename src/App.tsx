@@ -11,10 +11,18 @@ const App = () => {
     const inputFiles = e.target.files;
     if (!inputFiles) return;
 
-    if (inputFiles[inputFiles.length - 1].size > MAX_FILE_SIZE) {
-      alert("File size is too big!");
-      return;
+    const filesArray = Array.from(inputFiles);
+
+    let sizeError = false;
+    for (const file of filesArray) {
+      if (file.size > MAX_FILE_SIZE) {
+        alert("File size is too big!");
+        sizeError = true;
+        break;
+      }
     }
+
+    if (sizeError) return;
     setFiles(inputFiles);
 
     const formData = new FormData();
@@ -50,19 +58,18 @@ const App = () => {
   useEffect(() => {
     // create the preview
     if (!files) return;
-    let objectUrl: any = undefined;
-    console.log("files", files);
+    const filesArray = Array.from(files);
 
-    Array.from(files).forEach((file: File) => {
-      // console.log("file", file);
-      // console.log("type", typeof file);
-
-      objectUrl = URL.createObjectURL(file);
-      setPreview((prevState) => [...prevState!, objectUrl]);
-    });
+    const previewItems = filesArray.map((file: File) =>
+      URL.createObjectURL(file)
+    );
+    // setPreview((prevState) => [...prevState!, objectUrl]);
+    setPreview(previewItems);
 
     // free memory when ever this component is unmounted
-    return () => URL.revokeObjectURL(objectUrl);
+    return () => {
+      previewItems.forEach((item) => URL.revokeObjectURL(item));
+    };
   }, [files]);
 
   return (
@@ -89,7 +96,7 @@ const App = () => {
         })} */}
 
       {preview && preview.length ? (
-        preview.map((imgSrc) => <img key={imgSrc} src={imgSrc} alt="" />)
+        preview.map((imgSrc, index) => <img key={index} src={imgSrc} alt="" />)
       ) : (
         <></>
       )}
