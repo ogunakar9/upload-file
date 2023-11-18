@@ -5,33 +5,64 @@ import { POST_URL } from "./features/upload/uploadAPI";
 const App = () => {
   const MAX_FILE_SIZE = 50000;
   const [files, setFiles] = useState<FileList | null>(null);
+  const [preview, setPreview] = useState<string[] | undefined>([]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
+    const inputFiles = e.target.files;
+    if (!inputFiles) return;
 
-    if (files[files.length - 1].size > MAX_FILE_SIZE) {
-      alert("Please upload only one file");
+    if (inputFiles[inputFiles.length - 1].size > MAX_FILE_SIZE) {
+      alert("File size is too big!");
       return;
     }
-    setFiles(files);
+    setFiles(inputFiles);
+
+    const formData = new FormData();
+
+    // console.log("inputFiles", inputFiles);
+
+    for (const file in inputFiles) {
+      formData.append("file", file);
+    }
+
+    // console.log("xx", formData.get("file"));
   };
 
+  // useEffect(() => {
+  //   if (files && files.length) {
+  //     const formData = new FormData();
+
+  //     for (const file in files) {
+  //       formData.append("file", file);
+  //     }
+
+  //     console.log("xx", formData.get("file"));
+
+  //     // fetch(POST_URL, {
+  //     //   method: "POST",
+  //     //   body: formData,
+  //     // })
+  //     //   .then((res) => res.json())
+  //     //   .then((res) => console.log(res));
+  //   }
+  // }, [files]);
+
   useEffect(() => {
-    if (files && files.length) {
-      const formData = new FormData();
-      console.log(files[0]);
+    // create the preview
+    if (!files) return;
+    let objectUrl: any = undefined;
+    console.log("files", files);
 
-      formData.append("file", files[0]);
-      console.log(formData);
+    Array.from(files).forEach((file: File) => {
+      // console.log("file", file);
+      // console.log("type", typeof file);
 
-      // fetch(POST_URL, {
-      //   method: "POST",
-      //   body: formData,
-      // })
-      //   .then((res) => res.json())
-      //   .then((res) => console.log(res));
-    }
+      objectUrl = URL.createObjectURL(file);
+      setPreview((prevState) => [...prevState!, objectUrl]);
+    });
+
+    // free memory when ever this component is unmounted
+    return () => URL.revokeObjectURL(objectUrl);
   }, [files]);
 
   return (
@@ -42,8 +73,8 @@ const App = () => {
       >
         Hello world!
       </h1>
-      <input type="file" onChange={handleInputChange} />
-      {files &&
+      <input type="file" multiple onChange={handleInputChange} />
+      {/* {files &&
         Array.from(files).map((file: File) => {
           return (
             <section key={file.name}>
@@ -55,7 +86,13 @@ const App = () => {
               </ul>
             </section>
           );
-        })}
+        })} */}
+
+      {preview && preview.length ? (
+        preview.map((imgSrc) => <img key={imgSrc} src={imgSrc} alt="" />)
+      ) : (
+        <></>
+      )}
     </div>
   );
 };
