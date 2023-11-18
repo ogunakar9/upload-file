@@ -1,76 +1,36 @@
-import { ChangeEvent, useEffect, useState } from "react";
 import "./App.css";
 import { POST_URL } from "./features/upload/uploadAPI";
+import FileUploader from "./FileUploader";
 
 const App = () => {
-  const MAX_FILE_SIZE = 50000;
-  const [files, setFiles] = useState<FileList | null>(null);
-  const [preview, setPreview] = useState<string[] | undefined>([]);
+  // const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+  //   const inputFiles = e.target.files;
+  //   if (!inputFiles) return;
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const inputFiles = e.target.files;
-    if (!inputFiles) return;
+  //   const filesArray = Array.from(inputFiles);
 
-    const filesArray = Array.from(inputFiles);
-
-    let sizeError = false;
-    for (const file of filesArray) {
-      if (file.size > MAX_FILE_SIZE) {
-        alert("File size is too big!");
-        sizeError = true;
-        break;
-      }
-    }
-
-    if (sizeError) return;
-    setFiles(inputFiles);
-
-    const formData = new FormData();
-
-    // console.log("inputFiles", inputFiles);
-
-    for (const file in inputFiles) {
-      formData.append("file", file);
-    }
-
-    // console.log("xx", formData.get("file"));
-  };
-
-  // useEffect(() => {
-  //   if (files && files.length) {
-  //     const formData = new FormData();
-
-  //     for (const file in files) {
-  //       formData.append("file", file);
+  //   let sizeError = false;
+  //   for (const file of filesArray) {
+  //     if (file.size > MAX_FILE_SIZE) {
+  //       alert("File size is too big!");
+  //       sizeError = true;
+  //       break;
   //     }
-
-  //     console.log("xx", formData.get("file"));
-
-  //     // fetch(POST_URL, {
-  //     //   method: "POST",
-  //     //   body: formData,
-  //     // })
-  //     //   .then((res) => res.json())
-  //     //   .then((res) => console.log(res));
   //   }
-  // }, [files]);
 
-  useEffect(() => {
-    // create the preview
-    if (!files) return;
-    const filesArray = Array.from(files);
+  //   if (sizeError) return;
+  //   setFiles(inputFiles);
 
-    const previewItems = filesArray.map((file: File) =>
-      URL.createObjectURL(file)
-    );
-    // setPreview((prevState) => [...prevState!, objectUrl]);
-    setPreview(previewItems);
+  //   const formData = new FormData();
 
-    // free memory when ever this component is unmounted
-    return () => {
-      previewItems.forEach((item) => URL.revokeObjectURL(item));
-    };
-  }, [files]);
+  //   // console.log("inputFiles", inputFiles);
+
+  //   for (const file in inputFiles) {
+  //     formData.append("file", file);
+  //   }
+
+  //   // console.log("xx", formData.get("file"));
+  // };
 
   return (
     <div className="App">
@@ -80,7 +40,7 @@ const App = () => {
       >
         Hello world!
       </h1>
-      <input type="file" multiple onChange={handleInputChange} />
+
       {/* {files &&
         Array.from(files).map((file: File) => {
           return (
@@ -95,13 +55,11 @@ const App = () => {
           );
         })} */}
 
-      {preview && preview.length ? (
-        preview.map((imgSrc, index) => <img key={index} src={imgSrc} alt="" />)
-      ) : (
-        <></>
-      )}
+      <FileUploader />
     </div>
   );
 };
 
 export default App;
+
+// method="post" enctype="multipart/form-data"
