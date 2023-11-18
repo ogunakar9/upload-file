@@ -1,5 +1,4 @@
 import "./App.css";
-import { POST_URL } from "./features/upload/uploadAPI";
 import FileUploader from "./FileUploader";
 
 const App = () => {
