@@ -1,15 +1,23 @@
-import React, { useState, ChangeEvent, useEffect, MouseEvent } from "react";
-import { POST_URL, MAX_FILE_SIZE } from "./utility/constants";
+import React, {
+  useState,
+  ChangeEvent,
+  useEffect,
+  MouseEvent,
+  useRef,
+} from "react";
+import { POST_URL, MAX_FILE_SIZE, debounce } from "./utility";
 
 const FileUploader: React.FC = () => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [preview, setPreview] = useState<string[] | undefined>([]);
   const [uploadProgress, setUploadProgress] = useState<number[]>([]);
   const [serverLoading, setServerLoading] = useState<boolean>(false);
   const [uploadXHR, setUploadXHR] = useState<XMLHttpRequest | null>(null);
+  const [notificationVisible, setNotificationVisible] =
+    useState<boolean>(false);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    //FIXME: readding the same file after removing it will not trigger the onChange event
     const inputFiles = e.target.files;
     if (!inputFiles) return;
 
@@ -114,10 +122,14 @@ const FileUploader: React.FC = () => {
         setUploadXHR(null);
         setUploadProgress([]);
         setServerLoading(false);
+        setNotificationVisible(true);
       })
       .catch((error) => {
         console.error(error);
         //TODO: server error state
+      })
+      .finally(() => {
+        setServerLoading(false);
       });
   };
 
@@ -128,54 +140,84 @@ const FileUploader: React.FC = () => {
     }
   };
 
+  const handleUploadMore = () => {
+    setNotificationVisible(false);
+    setSelectedFiles([]);
+    setPreview([]);
+    inputRef!.current!.click();
+  };
+
   return (
     <>
       <form method="post" encType="multipart/form-data" action="">
         <label style={{ cursor: "pointer" }}>
           <span>Upload files</span>
           <input
+            ref={inputRef}
             type="file"
             onChange={handleFileChange}
             multiple
             style={{ display: "none" }}
+            onClick={() => {
+              inputRef!.current!.value = "";
+            }}
           />
         </label>
-        <div>
-          <h4>Selected Files:</h4>
-          <ul>
-            {preview && preview.length ? (
-              preview.map((imgSrc, index) => {
-                return (
-                  <div key={index}>
-                    <li>{selectedFiles[index].name}</li>
-                    <button onClick={() => handleRemoveImage(imgSrc, index)}>
-                      x
-                    </button>
-                    <img src={imgSrc} alt="" />
-                  </div>
-                );
-              })
-            ) : (
-              <></>
-            )}
-          </ul>
-        </div>
-        <button onClick={(e) => handleOnClick(e)}>upload</button>
+
+        {selectedFiles.length ? (
+          <>
+            <h4>Selected Files:</h4>
+            <ul>
+              {preview && preview.length ? (
+                preview.map((imgSrc, index) => {
+                  return (
+                    <div key={index}>
+                      <li>{selectedFiles[index].name}</li>
+                      <button onClick={() => handleRemoveImage(imgSrc, index)}>
+                        x
+                      </button>
+                      <img src={imgSrc} alt="" />
+                    </div>
+                  );
+                })
+              ) : (
+                <></>
+              )}
+            </ul>
+            <button onClick={(e) => handleOnClick(e)}>upload</button>
+          </>
+        ) : (
+          <></>
+        )}
       </form>
 
-      <div>
-        <h4>Upload Progress:</h4>
-        <ul>
-          {uploadProgress.map((progress, index) => (
-            <li key={index}>{`File ${index + 1}: ${progress.toFixed(2)}%`}</li>
-          ))}
-        </ul>
-      </div>
-      {serverLoading && <div>Loading on Server...</div>}
+      {uploadProgress.length ? (
+        <div>
+          <h4>Upload Progress:</h4>
+          <ul>
+            {uploadProgress.map((progress, index) => (
+              <li key={index}>{`File ${index + 1}: ${progress.toFixed(
+                2
+              )}%`}</li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <></>
+      )}
+      {serverLoading ? <div>Loading on Server...</div> : <></>}
       {uploadXHR && (
         <button onClick={handleCancelUpload} type="button">
           Cancel Upload
         </button>
+      )}
+      {notificationVisible ? (
+        <div>
+          <span>upload successful!</span>
+          <button onClick={handleUploadMore}>upload more</button>
+        </div>
+      ) : (
+        <></>
       )}
     </>
   );
