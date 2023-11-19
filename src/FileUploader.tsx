@@ -5,7 +5,7 @@ import React, {
   MouseEvent,
   useRef,
 } from "react";
-import { POST_URL, MAX_FILE_SIZE, debounce } from "./utility";
+import { POST_URL, MAX_FILE_SIZE } from "./utility";
 
 const FileUploader: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
