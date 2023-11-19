@@ -23,9 +23,7 @@ const FileUploader: React.FC = () => {
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const inputFiles = e.target.files;
     if (!inputFiles) return;
-
     const files: File[] = Array.from(inputFiles);
-
     //TODO: extract to helper
     let sizeError = false;
     for (const file of files) {
@@ -35,9 +33,7 @@ const FileUploader: React.FC = () => {
         break;
       }
     }
-
     if (sizeError) return;
-
     if (inputFiles) {
       setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
     }
@@ -49,7 +45,7 @@ const FileUploader: React.FC = () => {
     const filesArray = Array.from(selectedFiles);
 
     const previewItems = filesArray.map((file: File) =>
-      URL.createObjectURL(file)
+      URL.createObjectURL(file),
     );
     // setPreview((prevState) => [...prevState!, objectUrl]);
     setPreview(previewItems);
@@ -67,17 +63,22 @@ const FileUploader: React.FC = () => {
   };
 
   //TODO: extract to helper
-  const handleRemoveImage = (imageName: string, index: number) => {
+  const handleRemoveImage = (
+    imageName: string,
+    index: number,
+    e: MouseEvent<HTMLElement>,
+  ) => {
     //TODO: find a better way to remove the image from files Array
     //FIXME: adding same file twice will cause a bug for finding index
+    e.preventDefault();
     resetUploadStatuses();
     const newFiles = Array.from(selectedFiles).filter(
-      (file) => index !== selectedFiles.indexOf(file)
+      (file) => index !== selectedFiles.indexOf(file),
     );
     setSelectedFiles(newFiles);
 
     const previewItems = Array.from(preview!).filter(
-      (item) => imageName !== item
+      (item) => imageName !== item,
     );
     setPreview(previewItems);
   };
@@ -173,34 +174,66 @@ const FileUploader: React.FC = () => {
   };
 
   return (
-    <>
-      <form method="post" encType="multipart/form-data" action="">
-        <label style={{ cursor: "pointer" }}>
-          <span>Upload files</span>
+    <div className="flex h-screen flex-col items-center  justify-center bg-gray-100">
+      <form
+        method="post"
+        encType="multipart/form-data"
+        action=""
+        className="my-8"
+      >
+        <label
+          htmlFor="fileInput"
+          className="relative block cursor-pointer border-2 border-dashed border-gray-400 p-4 text-center"
+        >
+          <span className="text-blue-500">Upload files</span>
           <input
+            id="fileInput"
             ref={inputRef}
             type="file"
             onChange={handleFileChange}
             multiple
-            style={{ display: "none" }}
+            className="invisible absolute bottom-0 left-0 right-0 top-0 z-10"
             onClick={handleInputClick}
           />
         </label>
 
         {selectedFiles.length ? (
           <>
-            <h4>Selected Files:</h4>
+            <h4 className="my-4 text-lg font-semibold">Selected Files:</h4>
             <ul>
               {preview && preview.length ? (
                 preview.map((imgSrc, index) => {
                   return (
-                    <div key={index}>
-                      <li>{selectedFiles[index].name}</li>
-                      <button onClick={() => handleRemoveImage(imgSrc, index)}>
-                        x
-                      </button>
-                      <img src={imgSrc} alt="" />
-                    </div>
+                    <li
+                      key={index}
+                      className="my-2 flex items-center justify-between"
+                    >
+                      <div className="flex items-center">
+                        <button
+                          onClick={(e) => handleRemoveImage(imgSrc, index, e)}
+                          className=" mr-1 rounded-full bg-red-500"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="white"
+                            className="h-6 w-6"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M18 12H6"
+                            />
+                          </svg>
+                        </button>
+                        <span className="mr-2">
+                          {selectedFiles[index].name}
+                        </span>
+                      </div>
+                      <img src={imgSrc} alt="" className="ml-2 max-h-20" />
+                    </li>
                   );
                 })
               ) : (
@@ -209,11 +242,21 @@ const FileUploader: React.FC = () => {
             </ul>
             {isError ? (
               <>
-                <div>upload failed!</div>
-                <button onClick={handleTryAgain}>try again!</button>
+                <div className="my-4 text-red-500">upload failed!</div>
+                <button
+                  className="focus:shadow-outline-blue rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:outline-none active:bg-blue-800"
+                  onClick={handleTryAgain}
+                >
+                  try again!
+                </button>
               </>
             ) : (
-              <button onClick={(e) => handleOnUpload(e)}>upload</button>
+              <button
+                className="focus:shadow-outline-blue rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:outline-none active:bg-blue-800"
+                onClick={(e) => handleOnUpload(e)}
+              >
+                upload
+              </button>
             )}
           </>
         ) : (
@@ -221,12 +264,12 @@ const FileUploader: React.FC = () => {
         )}
       </form>
       {uploadProgress.length ? (
-        <div>
-          <h4>Upload Progress:</h4>
+        <div className="my-4">
+          <h4 className="text-lg font-semibold">Upload Progress:</h4>
           <ul>
             {uploadProgress.map((progress, index) => (
               <li key={index}>{`File ${index + 1}: ${progress.toFixed(
-                2
+                2,
               )}%`}</li>
             ))}
           </ul>
@@ -234,26 +277,42 @@ const FileUploader: React.FC = () => {
       ) : (
         <></>
       )}
-      {serverLoading ? <div>Loading on Server...</div> : <></>}
-      {uploadXHR && (
-        <button onClick={handleCancelUpload} type="button">
-          Cancel Upload
-        </button>
-      )}
-      {isSuccess ? (
-        <div>
-          <span>upload successful!</span>
-          <button onClick={handleUploadMore}>upload more</button>
-        </div>
-      ) : (
-        <></>
-      )}
-      {isCanceled && !uploadXHR ? (
-        <span>you canceled the upload request!</span>
-      ) : (
-        <></>
-      )}
-    </>
+      <div className="">
+        {serverLoading ? (
+          <div className="my-4">Loading on Server...</div>
+        ) : (
+          <></>
+        )}
+        {uploadXHR && (
+          <button
+            onClick={handleCancelUpload}
+            className="focus:shadow-outline-red rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600 focus:outline-none active:bg-red-800"
+          >
+            Cancel Upload
+          </button>
+        )}
+        {isSuccess ? (
+          <div className="my-4">
+            <span className="text-green-500">upload successful!</span>
+            <button
+              className="focus:shadow-outline-blue ml-2 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:outline-none active:bg-blue-800"
+              onClick={handleUploadMore}
+            >
+              upload more
+            </button>
+          </div>
+        ) : (
+          <></>
+        )}
+        {isCanceled && !uploadXHR ? (
+          <span className="text-yellow-500">
+            you canceled the upload request!
+          </span>
+        ) : (
+          <></>
+        )}
+      </div>
+    </div>
   );
 };
 
