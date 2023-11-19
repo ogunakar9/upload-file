@@ -14,9 +14,11 @@ const FileUploader: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState<number[]>([]);
   const [serverLoading, setServerLoading] = useState<boolean>(false);
   const [uploadXHR, setUploadXHR] = useState<XMLHttpRequest | null>(null);
-  const [notificationVisible, setNotificationVisible] =
-    useState<boolean>(false);
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
+  const [isCanceled, setIsCanceled] = useState<boolean>(false);
+
+  //TODO: success, error and cancel states should be handled with notifications
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const inputFiles = e.target.files;
@@ -58,10 +60,17 @@ const FileUploader: React.FC = () => {
     };
   }, [selectedFiles]);
 
+  const resetUploadStatuses = () => {
+    setIsCanceled(false);
+    setIsSuccess(false);
+    setIsError(false);
+  };
+
   //TODO: extract to helper
   const handleRemoveImage = (imageName: string, index: number) => {
     //TODO: find a better way to remove the image from files Array
     //FIXME: adding same file twice will cause a bug for finding index
+    resetUploadStatuses();
     const newFiles = Array.from(selectedFiles).filter(
       (file) => index !== selectedFiles.indexOf(file)
     );
@@ -73,8 +82,9 @@ const FileUploader: React.FC = () => {
     setPreview(previewItems);
   };
 
-  const handleOnClick = async (e: MouseEvent<HTMLElement>) => {
+  const handleOnUpload = async (e: MouseEvent<HTMLElement>) => {
     e.preventDefault();
+    resetUploadStatuses();
     if (!selectedFiles.length) return;
 
     const xhrArray: XMLHttpRequest[] = [];
@@ -102,8 +112,8 @@ const FileUploader: React.FC = () => {
         };
 
         xhr.onerror = () => {
+          setIsError(true);
           reject(new Error("File upload failed"));
-          //TODO: file mount & upload error state
         };
 
         xhr.open("POST", POST_URL, true);
@@ -112,7 +122,6 @@ const FileUploader: React.FC = () => {
         xhr.send(formData);
 
         xhrArray.push(xhr);
-        throw new Error("file upload error");
       });
     });
 
@@ -121,7 +130,7 @@ const FileUploader: React.FC = () => {
 
     try {
       await Promise.all(promises);
-      setNotificationVisible(true);
+      setIsSuccess(true);
     } catch (error) {
       console.error(error);
       setIsError(true);
@@ -130,44 +139,37 @@ const FileUploader: React.FC = () => {
       setUploadProgress([]);
       setServerLoading(false);
     }
-
-    // Promise.all(promises)
-    //   .then(() => {
-    //     // setUploadXHR(null);
-    //     setUploadProgress([]);
-    //     // setServerLoading(false);
-    //     setNotificationVisible(true);
-    //   })
-    //   .catch((error) => {
-    //     console.error(error);
-    //     setIsError(true);
-    //   })
-    //   .finally(() => {
-    //     setUploadXHR(null);
-    //     setUploadProgress([]);
-    //     setServerLoading(false);
-    //   });
   };
 
   const handleCancelUpload = () => {
     if (uploadXHR) {
       uploadXHR.abort();
       setUploadXHR(null);
+      setUploadProgress([]);
+      setServerLoading(false);
+      setIsSuccess(false);
+      setIsError(false);
+      setIsCanceled(true);
     }
   };
 
   const handleUploadMore = () => {
-    setNotificationVisible(false);
+    resetUploadStatuses();
     setSelectedFiles([]);
     setPreview([]);
     inputRef!.current!.click();
   };
 
   const handleTryAgain = () => {
-    setIsError(false);
+    resetUploadStatuses();
     setUploadXHR(null);
     setUploadProgress([]);
     setServerLoading(false);
+  };
+
+  const handleInputClick = () => {
+    inputRef!.current!.value = "";
+    resetUploadStatuses();
   };
 
   return (
@@ -181,9 +183,7 @@ const FileUploader: React.FC = () => {
             onChange={handleFileChange}
             multiple
             style={{ display: "none" }}
-            onClick={() => {
-              inputRef!.current!.value = "";
-            }}
+            onClick={handleInputClick}
           />
         </label>
 
@@ -213,7 +213,7 @@ const FileUploader: React.FC = () => {
                 <button onClick={handleTryAgain}>try again!</button>
               </>
             ) : (
-              <button onClick={(e) => handleOnClick(e)}>upload</button>
+              <button onClick={(e) => handleOnUpload(e)}>upload</button>
             )}
           </>
         ) : (
@@ -240,11 +240,16 @@ const FileUploader: React.FC = () => {
           Cancel Upload
         </button>
       )}
-      {notificationVisible ? (
+      {isSuccess ? (
         <div>
           <span>upload successful!</span>
           <button onClick={handleUploadMore}>upload more</button>
         </div>
+      ) : (
+        <></>
+      )}
+      {isCanceled && !uploadXHR ? (
+        <span>you canceled the upload request!</span>
       ) : (
         <></>
       )}
