@@ -16,6 +16,7 @@ const FileUploader: React.FC = () => {
   const [uploadXHR, setUploadXHR] = useState<XMLHttpRequest | null>(null);
   const [notificationVisible, setNotificationVisible] =
     useState<boolean>(false);
+  const [isError, setIsError] = useState<boolean>(false);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const inputFiles = e.target.files;
@@ -72,7 +73,7 @@ const FileUploader: React.FC = () => {
     setPreview(previewItems);
   };
 
-  const handleOnClick = (e: MouseEvent<HTMLElement>) => {
+  const handleOnClick = async (e: MouseEvent<HTMLElement>) => {
     e.preventDefault();
     if (!selectedFiles.length) return;
 
@@ -111,26 +112,41 @@ const FileUploader: React.FC = () => {
         xhr.send(formData);
 
         xhrArray.push(xhr);
+        throw new Error("file upload error");
       });
     });
 
     setUploadXHR(xhrArray.length ? xhrArray[0] : null);
     setServerLoading(true);
 
-    Promise.all(promises)
-      .then(() => {
-        setUploadXHR(null);
-        setUploadProgress([]);
-        setServerLoading(false);
-        setNotificationVisible(true);
-      })
-      .catch((error) => {
-        console.error(error);
-        //TODO: server error state
-      })
-      .finally(() => {
-        setServerLoading(false);
-      });
+    try {
+      await Promise.all(promises);
+      setNotificationVisible(true);
+    } catch (error) {
+      console.error(error);
+      setIsError(true);
+    } finally {
+      setUploadXHR(null);
+      setUploadProgress([]);
+      setServerLoading(false);
+    }
+
+    // Promise.all(promises)
+    //   .then(() => {
+    //     // setUploadXHR(null);
+    //     setUploadProgress([]);
+    //     // setServerLoading(false);
+    //     setNotificationVisible(true);
+    //   })
+    //   .catch((error) => {
+    //     console.error(error);
+    //     setIsError(true);
+    //   })
+    //   .finally(() => {
+    //     setUploadXHR(null);
+    //     setUploadProgress([]);
+    //     setServerLoading(false);
+    //   });
   };
 
   const handleCancelUpload = () => {
@@ -145,6 +161,13 @@ const FileUploader: React.FC = () => {
     setSelectedFiles([]);
     setPreview([]);
     inputRef!.current!.click();
+  };
+
+  const handleTryAgain = () => {
+    setIsError(false);
+    setUploadXHR(null);
+    setUploadProgress([]);
+    setServerLoading(false);
   };
 
   return (
@@ -184,13 +207,19 @@ const FileUploader: React.FC = () => {
                 <></>
               )}
             </ul>
-            <button onClick={(e) => handleOnClick(e)}>upload</button>
+            {isError ? (
+              <>
+                <div>upload failed!</div>
+                <button onClick={handleTryAgain}>try again!</button>
+              </>
+            ) : (
+              <button onClick={(e) => handleOnClick(e)}>upload</button>
+            )}
           </>
         ) : (
           <></>
         )}
       </form>
-
       {uploadProgress.length ? (
         <div>
           <h4>Upload Progress:</h4>
