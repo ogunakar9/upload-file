@@ -5,6 +5,7 @@ const FileUploader: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [preview, setPreview] = useState<string[] | undefined>([]);
   const [uploadProgress, setUploadProgress] = useState<number[]>([]);
+  const [serverLoading, setServerLoading] = useState<boolean>(false);
   const [uploadXHR, setUploadXHR] = useState<XMLHttpRequest | null>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -93,6 +94,7 @@ const FileUploader: React.FC = () => {
 
         xhr.onerror = () => {
           reject(new Error("File upload failed"));
+          //TODO: file mount & upload error state
         };
 
         xhr.open("POST", POST_URL, true);
@@ -104,16 +106,19 @@ const FileUploader: React.FC = () => {
       });
     });
 
+    setUploadXHR(xhrArray.length ? xhrArray[0] : null);
+    setServerLoading(true);
+
     Promise.all(promises)
       .then(() => {
         setUploadXHR(null);
+        setUploadProgress([]);
+        setServerLoading(false);
       })
       .catch((error) => {
         console.error(error);
-        // Handle error as needed
+        //TODO: server error state
       });
-
-    setUploadXHR(xhrArray.length ? xhrArray[0] : null);
   };
 
   const handleCancelUpload = () => {
@@ -166,6 +171,7 @@ const FileUploader: React.FC = () => {
           ))}
         </ul>
       </div>
+      {serverLoading && <div>Loading on Server...</div>}
       {uploadXHR && (
         <button onClick={handleCancelUpload} type="button">
           Cancel Upload
