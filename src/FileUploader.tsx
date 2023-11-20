@@ -15,12 +15,18 @@ import {
   UploadFileForm,
 } from "./components";
 import { useAppSelector, useAppDispatch } from "./app/hooks";
-import { previewItems, setPreview } from "./features/upload/uploadSlice";
+import {
+  previewItems,
+  setPreview,
+  setUploadProgress,
+  uploadProgression,
+  resetUploadProgress,
+} from "./features/upload/uploadSlice";
 
 const FileUploader: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [uploadProgress, setUploadProgress] = useState<number[]>([]);
+  // const [uploadProgress, setUploadProgress] = useState<number[]>([]);
   const [serverLoading, setServerLoading] = useState<boolean>(false);
   const [uploadXHR, setUploadXHR] = useState<XMLHttpRequest | null>(null);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
@@ -28,6 +34,7 @@ const FileUploader: React.FC = () => {
   const [isCanceled, setIsCanceled] = useState<boolean>(false);
 
   const preview = useAppSelector(previewItems);
+  const uploadProgress = useAppSelector(uploadProgression);
   const dispatch = useAppDispatch();
 
   //TODO: success, error and cancel states should be handled with notifications
@@ -108,11 +115,7 @@ const FileUploader: React.FC = () => {
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
             const progress = (event.loaded / event.total) * 100;
-            setUploadProgress((prevProgress) => {
-              const newProgress = [...prevProgress];
-              newProgress[index] = progress;
-              return newProgress;
-            });
+            dispatch(setUploadProgress({ index, progress }));
           }
         };
 
@@ -149,7 +152,7 @@ const FileUploader: React.FC = () => {
       setIsError(true);
     } finally {
       setUploadXHR(null);
-      setUploadProgress([]);
+      dispatch(resetUploadProgress());
       setServerLoading(false);
     }
   };
@@ -158,7 +161,7 @@ const FileUploader: React.FC = () => {
     if (uploadXHR) {
       uploadXHR.abort();
       setUploadXHR(null);
-      setUploadProgress([]);
+      dispatch(resetUploadProgress());
       setServerLoading(false);
       setIsSuccess(false);
       setIsError(false);
@@ -176,7 +179,7 @@ const FileUploader: React.FC = () => {
   const handleTryAgain = () => {
     resetUploadStatuses();
     setUploadXHR(null);
-    setUploadProgress([]);
+    dispatch(resetUploadProgress());
     setServerLoading(false);
   };
 

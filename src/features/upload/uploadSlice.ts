@@ -2,6 +2,11 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState, AppThunk } from "../../app/store";
 import { fetchCount } from "./uploadAPI";
 
+interface IProgressPayloadAction {
+  index: number;
+  progress: number;
+}
+
 //TODO: change iserror issuccess and iscancled to status
 export interface UploaderState {
   isError: boolean;
@@ -52,7 +57,19 @@ export const uploadSlice = createSlice({
       // which detects changes to a "draft state" and produces a brand new
       // immutable state based off those changes
 
-      state.preview = [...action.payload];
+      state.preview = action.payload;
+    },
+    setUploadProgress: (
+      state,
+      action: PayloadAction<IProgressPayloadAction>,
+    ) => {
+      const { index, progress } = action.payload;
+      const newProgress = [...state.uploadProgress];
+      newProgress[index] = progress;
+      state.uploadProgress = newProgress;
+    },
+    resetUploadProgress: (state) => {
+      state.uploadProgress = [];
     },
     // decrement: (state) => {
     //   state.value -= 1;
@@ -79,7 +96,8 @@ export const uploadSlice = createSlice({
   // },
 });
 
-export const { setPreview } = uploadSlice.actions;
+export const { setPreview, setUploadProgress, resetUploadProgress } =
+  uploadSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
@@ -87,7 +105,8 @@ export const { setPreview } = uploadSlice.actions;
 export const isError = (state: RootState) => state.upload.isError;
 export const previewItems = (state: RootState) => state.upload.preview;
 export const files = (state: RootState) => state.upload.files;
-export const uploadProgress = (state: RootState) => state.upload.uploadProgress;
+export const uploadProgression = (state: RootState) =>
+  state.upload.uploadProgress;
 export const serverLoading = (state: RootState) => state.upload.serverLoading;
 export const uploadXHR = (state: RootState) => state.upload.uploadXHR;
 export const isSuccess = (state: RootState) => state.upload.isSuccess;
