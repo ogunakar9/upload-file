@@ -1,4 +1,9 @@
-const Progress = (uploadProgress: any) => {
+interface ProgressProps {
+  uploadProgress: number[];
+}
+
+const Progress = (props: ProgressProps) => {
+  const { uploadProgress } = props;
   return (
     <>
       {uploadProgress.length ? (

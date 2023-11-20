@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from "react";
 import { POST_URL, MAX_FILE_SIZE } from "./utility";
-import { Progress } from "./components";
+import { Progress, ServerLoadingIndicator } from "./components";
 
 const FileUploader: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -265,12 +265,8 @@ const FileUploader: React.FC = () => {
         )}
       </form>
       <Progress uploadProgress={uploadProgress} />
-      <div className="">
-        {serverLoading ? (
-          <div className="my-4">Loading on Server...</div>
-        ) : (
-          <></>
-        )}
+      <div>
+        <ServerLoadingIndicator serverLoading={serverLoading} />
         {uploadXHR && (
           <button
             onClick={handleCancelUpload}
