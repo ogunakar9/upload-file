@@ -108,6 +108,8 @@ export const uploadSlice = createSlice({
   // },
 });
 
+//TODO: refactor actions to "update" prefix instead of "set"
+
 export const {
   setPreview,
   setUploadProgress,
