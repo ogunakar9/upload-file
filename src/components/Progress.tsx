@@ -1,5 +1,8 @@
-const Progress = (props: IProgressProps) => {
-  const { uploadProgress } = props;
+import { useAppSelector } from "../app/hooks";
+import { uploadProgression } from "../features/upload/uploadSlice";
+
+const Progress = () => {
+  const uploadProgress = useAppSelector(uploadProgression);
   return (
     <>
       {uploadProgress.length ? (
@@ -21,7 +24,3 @@ const Progress = (props: IProgressProps) => {
 };
 
 export default Progress;
-
-interface IProgressProps {
-  uploadProgress: number[];
-}

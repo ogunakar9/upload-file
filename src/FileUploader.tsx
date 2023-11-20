@@ -19,7 +19,6 @@ import {
   previewItems,
   setPreview,
   setUploadProgress,
-  uploadProgression,
   resetUploadProgress,
   setServerLoading,
   setIsSuccess,
@@ -27,6 +26,7 @@ import {
   setIsCanceled,
   resetUploadStatuses,
 } from "./features/upload/uploadSlice";
+import { validateFileSize } from "./utility";
 
 const FileUploader: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -34,7 +34,6 @@ const FileUploader: React.FC = () => {
   const [uploadXHR, setUploadXHR] = useState<XMLHttpRequest | null>(null);
 
   const preview = useAppSelector(previewItems);
-  const uploadProgress = useAppSelector(uploadProgression);
   const dispatch = useAppDispatch();
 
   //TODO: success, error and cancel states should be handled with notifications
@@ -43,30 +42,19 @@ const FileUploader: React.FC = () => {
     const inputFiles = e.target.files;
     if (!inputFiles) return;
     const files: File[] = Array.from(inputFiles);
-    //TODO: extract to helper
-    let sizeError = false;
-    for (const file of files) {
-      if (file.size > MAX_FILE_SIZE) {
-        alert("File size is too big!");
-        sizeError = true;
-        break;
-      }
-    }
-    if (sizeError) return;
+    if (validateFileSize(files, MAX_FILE_SIZE)) return;
     if (inputFiles) {
       setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
     }
   };
 
   useEffect(() => {
-    // create the preview
     if (!selectedFiles) return;
     const filesArray = Array.from(selectedFiles);
 
     const previewItems = filesArray.map((file: File) =>
       URL.createObjectURL(file),
     );
-    // setPreview((prevState) => [...prevState!, objectUrl]);
     dispatch(setPreview(previewItems));
 
     // free memory when ever this component is unmounted
@@ -82,7 +70,6 @@ const FileUploader: React.FC = () => {
     e: MouseEvent<HTMLElement>,
   ) => {
     //TODO: find a better way to remove the image from files Array
-    //FIXME: adding same file twice will cause a bug for finding index
     e.preventDefault();
     dispatch(resetUploadStatuses());
     const newFiles = Array.from(selectedFiles).filter(
@@ -182,6 +169,7 @@ const FileUploader: React.FC = () => {
     dispatch(resetUploadStatuses());
   };
 
+  //TODO: extract functions to either helper or redux
   return (
     <div className="flex h-screen flex-col items-center  justify-center bg-gray-100">
       <UploadFileForm
@@ -193,7 +181,7 @@ const FileUploader: React.FC = () => {
         handleRemoveImage={handleRemoveImage}
         selectedFiles={selectedFiles}
       />
-      <Progress uploadProgress={uploadProgress} />
+      <Progress />
       <div>
         <ServerLoadingIndicator />
         <UploadXHRIndicator

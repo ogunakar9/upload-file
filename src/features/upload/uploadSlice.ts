@@ -17,7 +17,7 @@ export interface UploaderState {
   uploadXHR: XMLHttpRequest | null;
   isSuccess: boolean;
   isCanceled: boolean;
-  // status: "idle" | "loading" | "failed";
+  // status: "idle" | "loading" | "fail" | "succeess" | "canceled";
 }
 
 const initialState: UploaderState = {
@@ -37,14 +37,14 @@ const initialState: UploaderState = {
 // will call the thunk with the `dispatch` function as the first argument. Async
 // code can then be executed and other actions can be dispatched. Thunks are
 // typically used to make async requests.
-export const incrementAsync = createAsyncThunk(
-  "upload/fetchCount",
-  async (amount: number) => {
-    const response = await fetchCount(amount);
-    // The value we return becomes the `fulfilled` action payload
-    return response.data;
-  },
-);
+// export const incrementAsync = createAsyncThunk(
+//   "upload/AsyncOperation",
+//   async (amount: number) => {
+//     const response = await fetchCount(amount);
+//     // The value we return becomes the `fulfilled` action payload
+//     return response.data;
+//   },
+// );
 
 export const uploadSlice = createSlice({
   name: "upload",
@@ -119,9 +119,6 @@ export const {
   resetUploadStatuses,
 } = uploadSlice.actions;
 
-// The function below is called a selector and allows us to select a value from
-// the state. Selectors can also be defined inline where they're used instead of
-// in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
 export const isErrorState = (state: RootState) => state.upload.isError;
 export const previewItems = (state: RootState) => state.upload.preview;
 export const files = (state: RootState) => state.upload.files;
@@ -135,8 +132,8 @@ export const isCanceledState = (state: RootState) => state.upload.isCanceled;
 
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.
-// export const incrementIfOdd =
-//   (amount: number): AppThunk =>
+// export const handleTryAgain =
+//   (): AppThunk =>
 //   (dispatch, getState) => {
 //     const currentValue = selectCount(getState());
 //     if (currentValue % 2 === 1) {
