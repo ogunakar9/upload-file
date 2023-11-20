@@ -8,7 +8,6 @@ const Upload = (props: IUploadProps) => {
     inputRef,
     handleFileChange,
     handleInputClick,
-    preview,
     handleRemoveImage,
     selectedFiles,
   } = props;
@@ -39,7 +38,6 @@ const Upload = (props: IUploadProps) => {
         isError={isError}
         handleTryAgain={handleTryAgain}
         handleOnUpload={handleOnUpload}
-        preview={preview}
         selectedFiles={selectedFiles}
         handleRemoveImage={handleRemoveImage}
       />
@@ -61,6 +59,5 @@ interface IUploadProps {
     index: number,
     e: React.MouseEvent<HTMLElement>,
   ) => void;
-  preview: string[] | undefined;
   selectedFiles: File[];
 }

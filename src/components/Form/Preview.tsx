@@ -1,5 +1,9 @@
+import { useAppSelector } from "../../app/hooks";
+import { previewItems } from "../../features/upload/uploadSlice";
+
 const Preview = (props: IPreviewProps) => {
-  const { preview, selectedFiles, handleRemoveImage } = props;
+  const { selectedFiles, handleRemoveImage } = props;
+  const preview = useAppSelector(previewItems);
 
   return (
     <ul>
@@ -43,7 +47,6 @@ const Preview = (props: IPreviewProps) => {
 export default Preview;
 
 interface IPreviewProps {
-  preview: string[] | undefined;
   selectedFiles: File[];
   handleRemoveImage: (
     imageName: string,

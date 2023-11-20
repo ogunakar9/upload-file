@@ -6,7 +6,6 @@ const Selected = (props: ISelectedProps) => {
     isError,
     handleTryAgain,
     handleOnUpload,
-    preview,
     selectedFiles,
     handleRemoveImage,
   } = props;
@@ -16,7 +15,6 @@ const Selected = (props: ISelectedProps) => {
         <>
           <h4 className="my-4 text-lg font-semibold">Selected Files:</h4>
           <Preview
-            preview={preview}
             selectedFiles={selectedFiles}
             handleRemoveImage={handleRemoveImage}
           />
@@ -36,7 +34,6 @@ const Selected = (props: ISelectedProps) => {
 export default Selected;
 
 interface ISelectedProps {
-  preview: string[] | undefined;
   selectedFiles: File[];
   handleRemoveImage: (
     imageName: string,

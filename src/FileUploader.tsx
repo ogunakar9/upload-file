@@ -14,17 +14,21 @@ import {
   CancelIndicator,
   UploadFileForm,
 } from "./components";
+import { useAppSelector, useAppDispatch } from "./app/hooks";
+import { previewItems, setPreview } from "./features/upload/uploadSlice";
 
 const FileUploader: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [preview, setPreview] = useState<string[] | undefined>([]);
   const [uploadProgress, setUploadProgress] = useState<number[]>([]);
   const [serverLoading, setServerLoading] = useState<boolean>(false);
   const [uploadXHR, setUploadXHR] = useState<XMLHttpRequest | null>(null);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
   const [isCanceled, setIsCanceled] = useState<boolean>(false);
+
+  const preview = useAppSelector(previewItems);
+  const dispatch = useAppDispatch();
 
   //TODO: success, error and cancel states should be handled with notifications
 
@@ -56,13 +60,13 @@ const FileUploader: React.FC = () => {
       URL.createObjectURL(file),
     );
     // setPreview((prevState) => [...prevState!, objectUrl]);
-    setPreview(previewItems);
+    dispatch(setPreview(previewItems));
 
     // free memory when ever this component is unmounted
     return () => {
       previewItems.forEach((item) => URL.revokeObjectURL(item));
     };
-  }, [selectedFiles]);
+  }, [selectedFiles, dispatch]);
 
   const resetUploadStatuses = () => {
     setIsCanceled(false);
@@ -88,7 +92,7 @@ const FileUploader: React.FC = () => {
     const previewItems = Array.from(preview!).filter(
       (item) => imageName !== item,
     );
-    setPreview(previewItems);
+    dispatch(setPreview(previewItems));
   };
 
   const handleOnUpload = async (e: MouseEvent<HTMLElement>) => {
@@ -165,7 +169,7 @@ const FileUploader: React.FC = () => {
   const handleUploadMore = () => {
     resetUploadStatuses();
     setSelectedFiles([]);
-    setPreview([]);
+    dispatch(setPreview([]));
     inputRef!.current!.click();
   };
 
@@ -191,7 +195,6 @@ const FileUploader: React.FC = () => {
         handleInputClick={handleInputClick}
         inputRef={inputRef}
         handleRemoveImage={handleRemoveImage}
-        preview={preview}
         selectedFiles={selectedFiles}
       />
       <Progress uploadProgress={uploadProgress} />
