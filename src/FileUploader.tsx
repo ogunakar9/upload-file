@@ -11,6 +11,7 @@ import {
   ServerLoadingIndicator,
   SuccessIndicator,
   UploadXHRIndicator,
+  CancelIndicator,
 } from "./components";
 
 const FileUploader: React.FC = () => {
@@ -272,7 +273,6 @@ const FileUploader: React.FC = () => {
       <Progress uploadProgress={uploadProgress} />
       <div>
         <ServerLoadingIndicator serverLoading={serverLoading} />
-
         <UploadXHRIndicator
           uploadXHR={uploadXHR}
           handleCancelUpload={handleCancelUpload}
@@ -281,13 +281,7 @@ const FileUploader: React.FC = () => {
           isSuccess={isSuccess}
           handleUploadMore={handleUploadMore}
         />
-        {isCanceled && !uploadXHR ? (
-          <span className="text-yellow-500">
-            you canceled the upload request!
-          </span>
-        ) : (
-          <></>
-        )}
+        <CancelIndicator uploadXHR={uploadXHR} isCanceled={isCanceled} />
       </div>
     </div>
   );
