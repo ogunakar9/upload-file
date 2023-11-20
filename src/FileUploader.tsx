@@ -12,6 +12,7 @@ import {
   SuccessIndicator,
   UploadXHRIndicator,
   CancelIndicator,
+  UploadFileForm,
 } from "./components";
 
 const FileUploader: React.FC = () => {
@@ -182,94 +183,17 @@ const FileUploader: React.FC = () => {
 
   return (
     <div className="flex h-screen flex-col items-center  justify-center bg-gray-100">
-      <form
-        method="post"
-        encType="multipart/form-data"
-        action=""
-        className="my-8"
-      >
-        <label
-          htmlFor="fileInput"
-          className="relative block cursor-pointer border-2 border-dashed border-gray-400 p-4 text-center"
-        >
-          <span className="text-blue-500">Upload files</span>
-          <input
-            id="fileInput"
-            ref={inputRef}
-            type="file"
-            onChange={handleFileChange}
-            multiple
-            className="invisible absolute bottom-0 left-0 right-0 top-0 z-10"
-            onClick={handleInputClick}
-          />
-        </label>
-
-        {selectedFiles.length ? (
-          <>
-            <h4 className="my-4 text-lg font-semibold">Selected Files:</h4>
-            <ul>
-              {preview && preview.length ? (
-                preview.map((imgSrc, index) => {
-                  return (
-                    <li
-                      key={index}
-                      className="my-2 flex items-center justify-between"
-                    >
-                      <div className="flex items-center">
-                        <button
-                          onClick={(e) => handleRemoveImage(imgSrc, index, e)}
-                          className=" mr-1 rounded-full bg-red-500"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="white"
-                            className="h-6 w-6"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M18 12H6"
-                            />
-                          </svg>
-                        </button>
-                        <span className="mr-2">
-                          {selectedFiles[index].name}
-                        </span>
-                      </div>
-                      <img src={imgSrc} alt="" className="ml-2 max-h-20" />
-                    </li>
-                  );
-                })
-              ) : (
-                <></>
-              )}
-            </ul>
-            {isError ? (
-              <>
-                <div className="my-4 text-red-500">upload failed!</div>
-                <button
-                  className="focus:shadow-outline-blue rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:outline-none active:bg-blue-800"
-                  onClick={handleTryAgain}
-                >
-                  try again!
-                </button>
-              </>
-            ) : (
-              <button
-                className="focus:shadow-outline-blue rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:outline-none active:bg-blue-800"
-                onClick={(e) => handleOnUpload(e)}
-              >
-                upload
-              </button>
-            )}
-          </>
-        ) : (
-          <></>
-        )}
-      </form>
+      <UploadFileForm
+        isError={isError}
+        handleTryAgain={handleTryAgain}
+        handleOnUpload={handleOnUpload}
+        handleFileChange={handleFileChange}
+        handleInputClick={handleInputClick}
+        inputRef={inputRef}
+        handleRemoveImage={handleRemoveImage}
+        preview={preview}
+        selectedFiles={selectedFiles}
+      />
       <Progress uploadProgress={uploadProgress} />
       <div>
         <ServerLoadingIndicator serverLoading={serverLoading} />
