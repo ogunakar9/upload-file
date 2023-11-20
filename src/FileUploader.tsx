@@ -6,7 +6,11 @@ import React, {
   useRef,
 } from "react";
 import { POST_URL, MAX_FILE_SIZE } from "./utility";
-import { Progress, ServerLoadingIndicator } from "./components";
+import {
+  Progress,
+  ServerLoadingIndicator,
+  UploadXHRIndicator,
+} from "./components";
 
 const FileUploader: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -267,14 +271,11 @@ const FileUploader: React.FC = () => {
       <Progress uploadProgress={uploadProgress} />
       <div>
         <ServerLoadingIndicator serverLoading={serverLoading} />
-        {uploadXHR && (
-          <button
-            onClick={handleCancelUpload}
-            className="focus:shadow-outline-red rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600 focus:outline-none active:bg-red-800"
-          >
-            Cancel Upload
-          </button>
-        )}
+
+        <UploadXHRIndicator
+          uploadXHR={uploadXHR}
+          handleCancelUpload={handleCancelUpload}
+        />
         {isSuccess ? (
           <div className="my-4">
             <span className="text-green-500">upload successful!</span>

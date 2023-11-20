@@ -1,7 +1,3 @@
-interface ProgressProps {
-  uploadProgress: number[];
-}
-
 const Progress = (props: ProgressProps) => {
   const { uploadProgress } = props;
   return (
@@ -25,3 +21,7 @@ const Progress = (props: ProgressProps) => {
 };
 
 export default Progress;
+
+interface ProgressProps {
+  uploadProgress: number[];
+}

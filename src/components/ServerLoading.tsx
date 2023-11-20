@@ -1,7 +1,3 @@
-interface ServerLoadingProps {
-  serverLoading: boolean;
-}
-
 const ServerLoading = (props: ServerLoadingProps) => {
   const { serverLoading } = props;
   return (
@@ -12,3 +8,7 @@ const ServerLoading = (props: ServerLoadingProps) => {
 };
 
 export default ServerLoading;
+
+interface ServerLoadingProps {
+  serverLoading: boolean;
+}
