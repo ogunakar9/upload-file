@@ -21,13 +21,12 @@ import {
   setUploadProgress,
   uploadProgression,
   resetUploadProgress,
+  setServerLoading,
 } from "./features/upload/uploadSlice";
 
 const FileUploader: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  // const [uploadProgress, setUploadProgress] = useState<number[]>([]);
-  const [serverLoading, setServerLoading] = useState<boolean>(false);
   const [uploadXHR, setUploadXHR] = useState<XMLHttpRequest | null>(null);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -142,7 +141,7 @@ const FileUploader: React.FC = () => {
     });
 
     setUploadXHR(xhrArray.length ? xhrArray[0] : null);
-    setServerLoading(true);
+    dispatch(setServerLoading(true));
 
     try {
       await Promise.all(promises);
@@ -153,7 +152,7 @@ const FileUploader: React.FC = () => {
     } finally {
       setUploadXHR(null);
       dispatch(resetUploadProgress());
-      setServerLoading(false);
+      dispatch(setServerLoading(false));
     }
   };
 
@@ -162,7 +161,7 @@ const FileUploader: React.FC = () => {
       uploadXHR.abort();
       setUploadXHR(null);
       dispatch(resetUploadProgress());
-      setServerLoading(false);
+      dispatch(setServerLoading(false));
       setIsSuccess(false);
       setIsError(false);
       setIsCanceled(true);
@@ -180,7 +179,7 @@ const FileUploader: React.FC = () => {
     resetUploadStatuses();
     setUploadXHR(null);
     dispatch(resetUploadProgress());
-    setServerLoading(false);
+    dispatch(setServerLoading(false));
   };
 
   const handleInputClick = () => {
@@ -202,7 +201,7 @@ const FileUploader: React.FC = () => {
       />
       <Progress uploadProgress={uploadProgress} />
       <div>
-        <ServerLoadingIndicator serverLoading={serverLoading} />
+        <ServerLoadingIndicator />
         <UploadXHRIndicator
           uploadXHR={uploadXHR}
           handleCancelUpload={handleCancelUpload}

@@ -71,6 +71,9 @@ export const uploadSlice = createSlice({
     resetUploadProgress: (state) => {
       state.uploadProgress = [];
     },
+    setServerLoading: (state, action: PayloadAction<boolean>) => {
+      state.serverLoading = action.payload;
+    },
     // decrement: (state) => {
     //   state.value -= 1;
     // },
@@ -96,8 +99,12 @@ export const uploadSlice = createSlice({
   // },
 });
 
-export const { setPreview, setUploadProgress, resetUploadProgress } =
-  uploadSlice.actions;
+export const {
+  setPreview,
+  setUploadProgress,
+  resetUploadProgress,
+  setServerLoading,
+} = uploadSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
@@ -107,7 +114,8 @@ export const previewItems = (state: RootState) => state.upload.preview;
 export const files = (state: RootState) => state.upload.files;
 export const uploadProgression = (state: RootState) =>
   state.upload.uploadProgress;
-export const serverLoading = (state: RootState) => state.upload.serverLoading;
+export const serverLoadingIndicator = (state: RootState) =>
+  state.upload.serverLoading;
 export const uploadXHR = (state: RootState) => state.upload.uploadXHR;
 export const isSuccess = (state: RootState) => state.upload.isSuccess;
 export const isCanceled = (state: RootState) => state.upload.isCanceled;

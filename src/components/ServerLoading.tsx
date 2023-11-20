@@ -1,5 +1,8 @@
-const ServerLoading = (props: IServerLoadingProps) => {
-  const { serverLoading } = props;
+import { useAppSelector } from "../app/hooks";
+import { serverLoadingIndicator } from "../features/upload/uploadSlice";
+
+const ServerLoading = () => {
+  const serverLoading = useAppSelector(serverLoadingIndicator);
   return (
     <>
       {serverLoading ? <div className="my-4">Loading on Server...</div> : <></>}
@@ -8,7 +11,3 @@ const ServerLoading = (props: IServerLoadingProps) => {
 };
 
 export default ServerLoading;
-
-interface IServerLoadingProps {
-  serverLoading: boolean;
-}
