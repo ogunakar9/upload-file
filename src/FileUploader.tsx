@@ -6,6 +6,7 @@ import React, {
   useRef,
 } from "react";
 import { POST_URL, MAX_FILE_SIZE } from "./utility";
+import { Progress } from "./components";
 
 const FileUploader: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -263,20 +264,7 @@ const FileUploader: React.FC = () => {
           <></>
         )}
       </form>
-      {uploadProgress.length ? (
-        <div className="my-4">
-          <h4 className="text-lg font-semibold">Upload Progress:</h4>
-          <ul>
-            {uploadProgress.map((progress, index) => (
-              <li key={index}>{`File ${index + 1}: ${progress.toFixed(
-                2,
-              )}%`}</li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <></>
-      )}
+      <Progress uploadProgress={uploadProgress} />
       <div className="">
         {serverLoading ? (
           <div className="my-4">Loading on Server...</div>
