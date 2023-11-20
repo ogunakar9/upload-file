@@ -1,5 +1,5 @@
 import "./App.css";
-import FileUploader from "./FileUploader";
+import { FileUploader } from "./features/upload/";
 
 const App = () => {
   return <FileUploader />;
