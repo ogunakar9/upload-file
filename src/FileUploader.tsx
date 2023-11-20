@@ -9,6 +9,7 @@ import { POST_URL, MAX_FILE_SIZE } from "./utility";
 import {
   Progress,
   ServerLoadingIndicator,
+  SuccessIndicator,
   UploadXHRIndicator,
 } from "./components";
 
@@ -276,19 +277,10 @@ const FileUploader: React.FC = () => {
           uploadXHR={uploadXHR}
           handleCancelUpload={handleCancelUpload}
         />
-        {isSuccess ? (
-          <div className="my-4">
-            <span className="text-green-500">upload successful!</span>
-            <button
-              className="focus:shadow-outline-blue ml-2 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:outline-none active:bg-blue-800"
-              onClick={handleUploadMore}
-            >
-              upload more
-            </button>
-          </div>
-        ) : (
-          <></>
-        )}
+        <SuccessIndicator
+          isSuccess={isSuccess}
+          handleUploadMore={handleUploadMore}
+        />
         {isCanceled && !uploadXHR ? (
           <span className="text-yellow-500">
             you canceled the upload request!

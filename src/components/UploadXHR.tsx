@@ -1,4 +1,4 @@
-const UploadXHR = (props: UploadXHRProps) => {
+const UploadXHR = (props: IUploadXHRProps) => {
   const { uploadXHR, handleCancelUpload } = props;
 
   return (
@@ -17,7 +17,7 @@ const UploadXHR = (props: UploadXHRProps) => {
 
 export default UploadXHR;
 
-interface UploadXHRProps {
+interface IUploadXHRProps {
   uploadXHR: XMLHttpRequest | null;
   handleCancelUpload: () => void;
 }

@@ -1,4 +1,4 @@
-const ServerLoading = (props: ServerLoadingProps) => {
+const ServerLoading = (props: IServerLoadingProps) => {
   const { serverLoading } = props;
   return (
     <>
@@ -9,6 +9,6 @@ const ServerLoading = (props: ServerLoadingProps) => {
 
 export default ServerLoading;
 
-interface ServerLoadingProps {
+interface IServerLoadingProps {
   serverLoading: boolean;
 }
