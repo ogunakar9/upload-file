@@ -1,5 +1,9 @@
+import { useAppSelector } from "../../app/hooks";
+import { isErrorState } from "../../features/upload/uploadSlice";
+
 const Error = (props: IErrorProps) => {
-  const { isError, handleTryAgain, handleOnUpload } = props;
+  const { handleTryAgain, handleOnUpload } = props;
+  const isError = useAppSelector(isErrorState);
   return (
     <>
       {isError ? (
@@ -27,7 +31,6 @@ const Error = (props: IErrorProps) => {
 export default Error;
 
 interface IErrorProps {
-  isError: boolean;
   handleTryAgain: () => void;
   handleOnUpload: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }

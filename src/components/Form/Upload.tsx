@@ -2,7 +2,6 @@ import Selected from "./Selected";
 
 const Upload = (props: IUploadProps) => {
   const {
-    isError,
     handleTryAgain,
     handleOnUpload,
     inputRef,
@@ -35,7 +34,6 @@ const Upload = (props: IUploadProps) => {
         />
       </label>
       <Selected
-        isError={isError}
         handleTryAgain={handleTryAgain}
         handleOnUpload={handleOnUpload}
         selectedFiles={selectedFiles}
@@ -48,7 +46,6 @@ const Upload = (props: IUploadProps) => {
 export default Upload;
 
 interface IUploadProps {
-  isError: boolean;
   handleTryAgain: () => void;
   handleOnUpload: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   inputRef: React.RefObject<HTMLInputElement>;

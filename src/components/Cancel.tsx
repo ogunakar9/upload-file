@@ -1,5 +1,9 @@
+import { useAppSelector } from "../app/hooks";
+import { isCanceledState } from "../features/upload/uploadSlice";
+
 const Cancel = (props: ICancelProps) => {
-  const { isCanceled, uploadXHR } = props;
+  const isCanceled = useAppSelector(isCanceledState);
+  const { uploadXHR } = props;
 
   return (
     <>
@@ -17,6 +21,5 @@ const Cancel = (props: ICancelProps) => {
 export default Cancel;
 
 interface ICancelProps {
-  isCanceled: boolean;
   uploadXHR: XMLHttpRequest | null;
 }

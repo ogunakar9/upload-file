@@ -22,15 +22,16 @@ import {
   uploadProgression,
   resetUploadProgress,
   setServerLoading,
+  setIsSuccess,
+  setIsError,
+  setIsCanceled,
+  resetUploadStatuses,
 } from "./features/upload/uploadSlice";
 
 const FileUploader: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadXHR, setUploadXHR] = useState<XMLHttpRequest | null>(null);
-  const [isSuccess, setIsSuccess] = useState<boolean>(false);
-  const [isError, setIsError] = useState<boolean>(false);
-  const [isCanceled, setIsCanceled] = useState<boolean>(false);
 
   const preview = useAppSelector(previewItems);
   const uploadProgress = useAppSelector(uploadProgression);
@@ -74,12 +75,6 @@ const FileUploader: React.FC = () => {
     };
   }, [selectedFiles, dispatch]);
 
-  const resetUploadStatuses = () => {
-    setIsCanceled(false);
-    setIsSuccess(false);
-    setIsError(false);
-  };
-
   //TODO: extract to helper
   const handleRemoveImage = (
     imageName: string,
@@ -89,7 +84,7 @@ const FileUploader: React.FC = () => {
     //TODO: find a better way to remove the image from files Array
     //FIXME: adding same file twice will cause a bug for finding index
     e.preventDefault();
-    resetUploadStatuses();
+    dispatch(resetUploadStatuses());
     const newFiles = Array.from(selectedFiles).filter(
       (file) => index !== selectedFiles.indexOf(file),
     );
@@ -103,7 +98,7 @@ const FileUploader: React.FC = () => {
 
   const handleOnUpload = async (e: MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    resetUploadStatuses();
+    dispatch(resetUploadStatuses());
     if (!selectedFiles.length) return;
 
     const xhrArray: XMLHttpRequest[] = [];
@@ -127,7 +122,7 @@ const FileUploader: React.FC = () => {
         };
 
         xhr.onerror = () => {
-          setIsError(true);
+          dispatch(setIsError(true));
           reject(new Error("File upload failed"));
         };
 
@@ -145,10 +140,10 @@ const FileUploader: React.FC = () => {
 
     try {
       await Promise.all(promises);
-      setIsSuccess(true);
+      dispatch(setIsSuccess(true));
     } catch (error) {
       console.error(error);
-      setIsError(true);
+      dispatch(setIsError(true));
     } finally {
       setUploadXHR(null);
       dispatch(resetUploadProgress());
@@ -162,21 +157,21 @@ const FileUploader: React.FC = () => {
       setUploadXHR(null);
       dispatch(resetUploadProgress());
       dispatch(setServerLoading(false));
-      setIsSuccess(false);
-      setIsError(false);
-      setIsCanceled(true);
+      dispatch(setIsSuccess(false));
+      dispatch(setIsError(false));
+      dispatch(setIsCanceled(true));
     }
   };
 
   const handleUploadMore = () => {
-    resetUploadStatuses();
+    dispatch(resetUploadStatuses());
     setSelectedFiles([]);
     dispatch(setPreview([]));
     inputRef!.current!.click();
   };
 
   const handleTryAgain = () => {
-    resetUploadStatuses();
+    dispatch(resetUploadStatuses());
     setUploadXHR(null);
     dispatch(resetUploadProgress());
     dispatch(setServerLoading(false));
@@ -184,13 +179,12 @@ const FileUploader: React.FC = () => {
 
   const handleInputClick = () => {
     inputRef!.current!.value = "";
-    resetUploadStatuses();
+    dispatch(resetUploadStatuses());
   };
 
   return (
     <div className="flex h-screen flex-col items-center  justify-center bg-gray-100">
       <UploadFileForm
-        isError={isError}
         handleTryAgain={handleTryAgain}
         handleOnUpload={handleOnUpload}
         handleFileChange={handleFileChange}
@@ -206,11 +200,8 @@ const FileUploader: React.FC = () => {
           uploadXHR={uploadXHR}
           handleCancelUpload={handleCancelUpload}
         />
-        <SuccessIndicator
-          isSuccess={isSuccess}
-          handleUploadMore={handleUploadMore}
-        />
-        <CancelIndicator uploadXHR={uploadXHR} isCanceled={isCanceled} />
+        <SuccessIndicator handleUploadMore={handleUploadMore} />
+        <CancelIndicator uploadXHR={uploadXHR} />
       </div>
     </div>
   );

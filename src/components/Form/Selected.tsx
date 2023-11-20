@@ -2,13 +2,8 @@ import Preview from "./Preview";
 import Error from "./Error";
 
 const Selected = (props: ISelectedProps) => {
-  const {
-    isError,
-    handleTryAgain,
-    handleOnUpload,
-    selectedFiles,
-    handleRemoveImage,
-  } = props;
+  const { handleTryAgain, handleOnUpload, selectedFiles, handleRemoveImage } =
+    props;
   return (
     <>
       {selectedFiles && selectedFiles.length ? (
@@ -19,7 +14,6 @@ const Selected = (props: ISelectedProps) => {
             handleRemoveImage={handleRemoveImage}
           />
           <Error
-            isError={isError}
             handleTryAgain={handleTryAgain}
             handleOnUpload={handleOnUpload}
           />
@@ -40,7 +34,6 @@ interface ISelectedProps {
     index: number,
     e: React.MouseEvent<HTMLElement>,
   ) => void;
-  isError: boolean;
   handleTryAgain: () => void;
   handleOnUpload: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }

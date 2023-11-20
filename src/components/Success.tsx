@@ -1,5 +1,9 @@
+import { useAppSelector } from "../app/hooks";
+import { isSuccessState } from "../features/upload/uploadSlice";
+
 const Success = (props: ISuccessProps) => {
-  const { isSuccess, handleUploadMore } = props;
+  const isSuccess = useAppSelector(isSuccessState);
+  const { handleUploadMore } = props;
 
   return (
     <>
@@ -23,6 +27,5 @@ const Success = (props: ISuccessProps) => {
 export default Success;
 
 interface ISuccessProps {
-  isSuccess: boolean;
   handleUploadMore: () => void;
 }
